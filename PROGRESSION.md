@@ -58,14 +58,14 @@
 
 ## Étape 3 — API minimale (apps/api) 🟢
 
-- [ ] Installer `fastify`, `@fastify/cors`, `@fastify/multipart`, `fastify-type-provider-zod`
-- [ ] `server.ts` : création du serveur, logger Pino, fermeture propre (SIGTERM)
-- [ ] Plugin `db` (décore `fastify.db`)
-- [ ] Gestionnaire d'erreurs global (format JSON uniforme `{ error, message }`)
-- [ ] Route `GET /health` : vérifie Postgres, Redis et Ollama
-- [ ] Script `dev` avec `tsx watch`
+- [x] Installer `fastify`, `@fastify/cors`, `@fastify/multipart`, `fastify-type-provider-zod`
+- [x] `server.ts` : création du serveur, logger Pino, fermeture propre (SIGTERM)
+- [x] Plugin `db` (décore `fastify.db`)
+- [x] Gestionnaire d'erreurs global (format JSON uniforme `{ error, message }`)
+- [x] Route `GET /health` : vérifie Postgres, Redis et Ollama
+- [x] Script `dev` avec `tsx watch`
 
-**✅ Validation** : `GET /health` renvoie `200` avec l'état de chaque service, et `503` si l'un d'eux est arrêté.
+**✅ Validation** : `GET /health` renvoie `200` avec l'état de chaque service, et `503` si l'un d'eux est arrêté. ✅
 
 ---
 
@@ -289,3 +289,4 @@ Interface commune : `parse(input) → { title, markdown, pages?: { page, startOf
 | 2026-10-15 | 2 | Migration 0000 (`CREATE EXTENSION vector`) générée via `drizzle-kit generate --custom` et testée (appliquée sur Postgres local). `schema.ts` créé en placeholder vide, à remplir à la tâche suivante. |
 | 2026-10-15 | 2 | Schéma Drizzle complet (documents/chunks/conversations/messages) + migration 0001 générée et appliquée. `generatedAlwaysAs` de Drizzle a produit le DDL `tsvector GENERATED ALWAYS AS (...) STORED` correct sans besoin de SQL brut. Testé en insérant un chunk avec vecteur 1024d et recherche plein texte. |
 | 2026-10-15 | 2 | Étape 2 terminée : index HNSW/GIN/B-tree (migration 0002), scripts `pnpm db:generate`/`db:migrate`/`db:reset`, client `db` + schéma exportés depuis `packages/core`. Tout vérifié manuellement (insert/select via le client, reset qui recrée extension + tables + index). |
+| 2026-10-15 | 3 | Étape 3 terminée : API Fastify minimale (`apps/api`) avec plugin `db`, gestionnaire d'erreurs uniforme, route `/health` (check Postgres/Redis/Ollama) et `tsx watch`. Vérifié en conditions réelles : 200 tous services up, 503 après arrêt de Redis, 200 au redémarrage, arrêt propre sur SIGTERM. Port API (3001) géré localement dans `server.ts`, pas ajouté au schéma Zod de `packages/core` (hors périmètre DOCS.md §11). Check Redis fait à la main en RESP brut (pas de dépendance ioredis avant l'étape 4). |
