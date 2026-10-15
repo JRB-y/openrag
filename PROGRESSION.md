@@ -41,8 +41,8 @@
 
 ## Étape 2 — Base de données (packages/core/db) 🟡
 
-- [ ] Installer `drizzle-orm`, `drizzle-kit`, `postgres` (driver)
-- [ ] `drizzle.config.ts`
+- [x] Installer `drizzle-orm`, `drizzle-kit`, `postgres` (driver)
+- [x] `drizzle.config.ts`
 - [ ] Migration 0 : `CREATE EXTENSION vector` (migration SQL manuelle)
 - [ ] Schéma Drizzle des tables `documents`, `chunks`, `conversations`, `messages` (DOCS.md §7)
   - [ ] Type `vector(1024)` pour `chunks.embedding`
@@ -285,3 +285,4 @@ Interface commune : `parse(input) → { title, markdown, pages?: { page, startOf
 | 2026-10-15 | 0 | `pnpm init` + `pnpm-workspace.yaml` (apps/*, packages/*). |
 | 2026-10-15 | 0 | Étape 0 terminée : Node 22 (.nvmrc/engines), tsconfig.base.json, dossiers apps/packages, ESLint+Prettier, Vitest, scripts racine, .env.example, config.ts (Zod). |
 | 2026-10-15 | 1 | Étape 1 terminée : docker-compose (postgres/redis/ollama), scripts infra:up/down et models:pull. Décision : ports Redis/Ollama remappés sur l'hôte (6380/11435) via POSTGRES_PORT/REDIS_PORT/OLLAMA_PORT car des instances natives tournaient déjà sur les ports standards de cette machine ; LLM_MODEL par défaut = `qwen2.5:7b-instruct`. |
+| 2026-10-15 | 2 | Installation drizzle-orm/drizzle-kit/postgres + drizzle.config.ts dans packages/core. |
