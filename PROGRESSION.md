@@ -12,16 +12,16 @@
 
 - [x] Créer le repo `openrag` + `.gitignore` (node_modules, .env, storage/, dist/, .next/)
 - [x] `pnpm init` à la racine + `pnpm-workspace.yaml` (`apps/*`, `packages/*`)
-- [ ] Fixer la version de Node (`.nvmrc` → 22, champ `engines` dans `package.json`)
-- [ ] `tsconfig.base.json` partagé (strict, `moduleResolution: bundler`, `target: ES2022`)
-- [ ] Créer les dossiers : `apps/api`, `apps/worker`, `apps/web`, `packages/core`
-- [ ] Configurer ESLint + Prettier à la racine
-- [ ] Installer Vitest à la racine
-- [ ] Scripts racine : `dev`, `build`, `lint`, `test`, `typecheck`
-- [ ] Créer `.env.example` (variables listées dans DOCS.md §11)
-- [ ] Charger et valider l'env avec Zod dans `packages/core/src/config.ts` (l'app plante au démarrage si une variable manque)
+- [x] Fixer la version de Node (`.nvmrc` → 22, champ `engines` dans `package.json`)
+- [x] `tsconfig.base.json` partagé (strict, `moduleResolution: bundler`, `target: ES2022`)
+- [x] Créer les dossiers : `apps/api`, `apps/worker`, `apps/web`, `packages/core`
+- [x] Configurer ESLint + Prettier à la racine
+- [x] Installer Vitest à la racine
+- [x] Scripts racine : `dev`, `build`, `lint`, `test`, `typecheck`
+- [x] Créer `.env.example` (variables listées dans DOCS.md §11)
+- [x] Charger et valider l'env avec Zod dans `packages/core/src/config.ts` (l'app plante au démarrage si une variable manque)
 
-**✅ Validation** : `pnpm install && pnpm typecheck && pnpm lint` passent sans erreur.
+**✅ Validation** : `pnpm install && pnpm typecheck && pnpm lint` passent sans erreur. ✅
 
 ---
 
@@ -283,3 +283,4 @@ Interface commune : `parse(input) → { title, markdown, pages?: { page, startOf
 |---|---|---|
 | 2026-10-15 | 0 | Repo git initialisé, `.gitignore` créé, remote GitHub lié. |
 | 2026-10-15 | 0 | `pnpm init` + `pnpm-workspace.yaml` (apps/*, packages/*). |
+| 2026-10-15 | 0 | Étape 0 terminée : Node 22 (.nvmrc/engines), tsconfig.base.json, dossiers apps/packages, ESLint+Prettier, Vitest, scripts racine, .env.example, config.ts (Zod). |
