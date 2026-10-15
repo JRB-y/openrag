@@ -27,15 +27,15 @@
 
 ## Étape 1 — Infrastructure locale 🟢
 
-- [ ] `docker-compose.yml` avec :
-  - [ ] `postgres` (image `pgvector/pgvector:pg16`), volume persistant, healthcheck
-  - [ ] `redis` (image `redis:7`), healthcheck
-  - [ ] `ollama` (image `ollama/ollama`), volume pour les modèles
-- [ ] Script `pnpm infra:up` / `pnpm infra:down`
-- [ ] Script `pnpm models:pull` (télécharge `bge-m3` et le LLM choisi dans Ollama)
-- [ ] Vérifier qu'Ollama répond : `curl localhost:11434/api/tags`
+- [x] `docker-compose.yml` avec :
+  - [x] `postgres` (image `pgvector/pgvector:pg16`), volume persistant, healthcheck
+  - [x] `redis` (image `redis:7`), healthcheck
+  - [x] `ollama` (image `ollama/ollama`), volume pour les modèles
+- [x] Script `pnpm infra:up` / `pnpm infra:down`
+- [x] Script `pnpm models:pull` (télécharge `bge-m3` et le LLM choisi dans Ollama)
+- [x] Vérifier qu'Ollama répond : `curl localhost:11434/api/tags`
 
-**✅ Validation** : `docker compose up -d` démarre les 3 services en état `healthy` ; un appel d'embedding via `curl` à Ollama renvoie un vecteur de 1024 dimensions.
+**✅ Validation** : `docker compose up -d` démarre les 3 services en état `healthy` ; un appel d'embedding via `curl` à Ollama renvoie un vecteur de 1024 dimensions. ✅
 
 ---
 
@@ -284,3 +284,4 @@ Interface commune : `parse(input) → { title, markdown, pages?: { page, startOf
 | 2026-10-15 | 0 | Repo git initialisé, `.gitignore` créé, remote GitHub lié. |
 | 2026-10-15 | 0 | `pnpm init` + `pnpm-workspace.yaml` (apps/*, packages/*). |
 | 2026-10-15 | 0 | Étape 0 terminée : Node 22 (.nvmrc/engines), tsconfig.base.json, dossiers apps/packages, ESLint+Prettier, Vitest, scripts racine, .env.example, config.ts (Zod). |
+| 2026-10-15 | 1 | Étape 1 terminée : docker-compose (postgres/redis/ollama), scripts infra:up/down et models:pull. Décision : ports Redis/Ollama remappés sur l'hôte (6380/11435) via POSTGRES_PORT/REDIS_PORT/OLLAMA_PORT car des instances natives tournaient déjà sur les ports standards de cette machine ; LLM_MODEL par défaut = `qwen2.5:7b-instruct`. |
