@@ -10,7 +10,7 @@
 
 ## Étape 0 — Initialisation du monorepo 🟢
 
-- [ ] Créer le repo `openrag` + `.gitignore` (node_modules, .env, storage/, dist/, .next/)
+- [x] Créer le repo `openrag` + `.gitignore` (node_modules, .env, storage/, dist/, .next/)
 - [ ] `pnpm init` à la racine + `pnpm-workspace.yaml` (`apps/*`, `packages/*`)
 - [ ] Fixer la version de Node (`.nvmrc` → 22, champ `engines` dans `package.json`)
 - [ ] `tsconfig.base.json` partagé (strict, `moduleResolution: bundler`, `target: ES2022`)
@@ -281,4 +281,4 @@ Interface commune : `parse(input) → { title, markdown, pages?: { page, startOf
 
 | Date | Étape | Notes |
 |---|---|---|
-| | | |
+| 2026-10-15 | 0 | Repo git initialisé, `.gitignore` créé, remote GitHub lié. |
