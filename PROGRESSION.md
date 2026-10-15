@@ -127,17 +127,17 @@ Interface commune : `parse(input) → { title, markdown, pages?: { page, startOf
 
 ## Étape 7 — Chunking structurel (packages/core/chunking) 🔴
 
-- [ ] Compteur de tokens (`gpt-tokenizer` ou `js-tiktoken`, approximation suffisante)
-- [ ] Parser le Markdown en AST avec `remark` (`unified` + `remark-parse` + `remark-gfm`)
-- [ ] Découper par sections (H1 > H2 > H3) en suivant le fil d'Ariane des titres
-- [ ] Sous-découper les sections trop longues par paragraphes, avec chevauchement (`CHUNK_OVERLAP_TOKENS`)
-- [ ] Ne jamais couper un tableau ou un bloc de code (s'il dépasse la taille, il forme un chunk à lui seul)
-- [ ] Fusionner les sections trop courtes avec la suivante (éviter les chunks de 10 tokens)
-- [ ] Associer chaque chunk à sa page (PDF) grâce aux offsets
-- [ ] Sortie : `{ index, content, headingPath, page, tokenCount }[]`
-- [ ] Tests : taille max respectée, tableaux intacts, fil d'Ariane correct, ordre conservé
+- [x] Compteur de tokens (`gpt-tokenizer` ou `js-tiktoken`, approximation suffisante)
+- [x] Parser le Markdown en AST avec `remark` (`unified` + `remark-parse` + `remark-gfm`)
+- [x] Découper par sections (H1 > H2 > H3) en suivant le fil d'Ariane des titres
+- [x] Sous-découper les sections trop longues par paragraphes, avec chevauchement (`CHUNK_OVERLAP_TOKENS`)
+- [x] Ne jamais couper un tableau ou un bloc de code (s'il dépasse la taille, il forme un chunk à lui seul)
+- [x] Fusionner les sections trop courtes avec la suivante (éviter les chunks de 10 tokens)
+- [x] Associer chaque chunk à sa page (PDF) grâce aux offsets
+- [x] Sortie : `{ index, content, headingPath, page, tokenCount }[]`
+- [x] Tests : taille max respectée, tableaux intacts, fil d'Ariane correct, ordre conservé
 
-**✅ Validation** : sur les fixtures, aucun chunk ne dépasse la taille cible (sauf tableau/code isolé), et chaque chunk a un `headingPath` cohérent.
+**✅ Validation** : sur les fixtures, aucun chunk ne dépasse la taille cible (sauf tableau/code isolé), et chaque chunk a un `headingPath` cohérent. ✅
 
 ---
 
@@ -295,3 +295,4 @@ Interface commune : `parse(input) → { title, markdown, pages?: { page, startOf
 | 2026-10-15 | 6 | Étape 6 terminée : parsers markdown/txt/pdf(unpdf)/docx(mammoth)/html(jsdom+Readability)/url, conversion HTML→Markdown via turndown+plugin GFM (règle custom ajoutée pour les cellules de tableau que mammoth enveloppe dans des `<p>`). Fixtures générées à la main (dont un `.docx` et un `.pdf` avec tableau). 14 tests Vitest, tous verts. `vitest.config.ts` charge maintenant `.env` automatiquement (via `loadEnv` de Vite) — avant, `pnpm test` plantait silencieusement sans `source .env` manuel. |
 | 2026-10-15 | 9 (anticipé) | À la demande de l'utilisateur, on saute à l'étape 14 (front) pour tester visuellement upload + parsing. Câblage **minimal** du worker (`apps/worker/src/ingest.ts`) : appelle le bon parser selon `mimeType`/`sourceType`, met à jour `title` et passe le document à `ready`, ou `failed` (avec message) seulement après épuisement des 3 tentatives BullMQ. Pas de chunking/embeddings/hash de dédup ici — ça reste la portée complète de l'étape 9, non cochée. Storage a gagné une méthode `read(documentId)`. Bug corrigé au passage : `POST /documents/url` renvoyait 500 au lieu de 400 sur un domaine inexistant (ENOTFOUND non catché). |
 | 2026-10-15 | 14 (partiel) | Front Next.js créé dans `apps/web` (App Router, Tailwind v3, shadcn/ui style "new-york", thème sombre uniquement). Page Documents complète : drag & drop, ajout URL, liste avec badges de statut, polling auto, ré-indexation, suppression avec confirmation, affichage des erreurs. Page Chat non construite (API `/chat` pas encore implémentée). Type `DocumentDTO` partagé via `packages/core` entre l'API et le front. Testé en conditions réelles dans le navigateur (Claude in Chrome) : upload PDF → ready, URL → ready, fichier non supporté → bandeau d'erreur, suppression, ré-indexation. 3 bugs trouvés et corrigés en testant : (1) `create-next-app`/`shadcn@latest` résolvent des versions cassées/instables sur le registre — scaffold fait à la main + CLI shadcn épinglé en 2.10.0 ; (2) mon `tailwind.config.ts` enveloppait les couleurs en `hsl(var(--x))` alors que les variables CSS générées par shadcn sont des `oklch(...)` complets → fond transparent invisible ; (3) `@fastify/cors` n'autorisait pas `DELETE` par défaut (préflight ne listait que GET/HEAD/POST) → `methods` explicite ajouté. |
+| 2026-10-15 | 7 | Étape 7 terminée : chunking structurel (`packages/core/chunking`). AST via `remark`/`remark-gfm`, sections par H1/H2/H3 avec fil d'Ariane, fusion des sections < 20 tokens, sous-découpage par nœud (jamais au milieu d'un paragraphe/tableau/code) avec chevauchement, page associée via les offsets `unist`. 21 tests Vitest. Bug trouvé en testant : `takeOverlap` gardait toujours au moins un nœud entier même avec `chunkOverlapTokens: 0` — corrigé pour renvoyer un chevauchement vide dans ce cas. |

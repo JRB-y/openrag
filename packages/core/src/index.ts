@@ -14,3 +14,5 @@ export { parsePdf } from "./parsers/pdf.js";
 export { parseTxt } from "./parsers/txt.js";
 export { parseUrl } from "./parsers/url.js";
 export * from "./api-types.js";
+export { chunkMarkdown } from "./chunking/chunk-markdown.js";
+export type { Chunk } from "./chunking/types.js";
