@@ -44,9 +44,9 @@
 - [x] Installer `drizzle-orm`, `drizzle-kit`, `postgres` (driver)
 - [x] `drizzle.config.ts`
 - [x] Migration 0 : `CREATE EXTENSION vector` (migration SQL manuelle)
-- [ ] Schéma Drizzle des tables `documents`, `chunks`, `conversations`, `messages` (DOCS.md §7)
-  - [ ] Type `vector(1024)` pour `chunks.embedding`
-  - [ ] Colonne générée `tsv` (SQL brut si Drizzle ne la gère pas)
+- [x] Schéma Drizzle des tables `documents`, `chunks`, `conversations`, `messages` (DOCS.md §7)
+  - [x] Type `vector(1024)` pour `chunks.embedding`
+  - [x] Colonne générée `tsv` (SQL brut si Drizzle ne la gère pas)
 - [ ] Index : HNSW sur `embedding`, GIN sur `tsv`, B-tree sur `document_id`
 - [ ] Générer et appliquer les migrations (`pnpm db:generate`, `pnpm db:migrate`)
 - [ ] Exporter un client DB unique depuis `packages/core`
@@ -287,3 +287,4 @@ Interface commune : `parse(input) → { title, markdown, pages?: { page, startOf
 | 2026-10-15 | 1 | Étape 1 terminée : docker-compose (postgres/redis/ollama), scripts infra:up/down et models:pull. Décision : ports Redis/Ollama remappés sur l'hôte (6380/11435) via POSTGRES_PORT/REDIS_PORT/OLLAMA_PORT car des instances natives tournaient déjà sur les ports standards de cette machine ; LLM_MODEL par défaut = `qwen2.5:7b-instruct`. |
 | 2026-10-15 | 2 | Installation drizzle-orm/drizzle-kit/postgres + drizzle.config.ts dans packages/core. |
 | 2026-10-15 | 2 | Migration 0000 (`CREATE EXTENSION vector`) générée via `drizzle-kit generate --custom` et testée (appliquée sur Postgres local). `schema.ts` créé en placeholder vide, à remplir à la tâche suivante. |
+| 2026-10-15 | 2 | Schéma Drizzle complet (documents/chunks/conversations/messages) + migration 0001 générée et appliquée. `generatedAlwaysAs` de Drizzle a produit le DDL `tsvector GENERATED ALWAYS AS (...) STORED` correct sans besoin de SQL brut. Testé en insérant un chunk avec vecteur 1024d et recherche plein texte. |
