@@ -47,12 +47,12 @@
 - [x] Schéma Drizzle des tables `documents`, `chunks`, `conversations`, `messages` (DOCS.md §7)
   - [x] Type `vector(1024)` pour `chunks.embedding`
   - [x] Colonne générée `tsv` (SQL brut si Drizzle ne la gère pas)
-- [ ] Index : HNSW sur `embedding`, GIN sur `tsv`, B-tree sur `document_id`
-- [ ] Générer et appliquer les migrations (`pnpm db:generate`, `pnpm db:migrate`)
-- [ ] Exporter un client DB unique depuis `packages/core`
-- [ ] Script `pnpm db:reset` (drop + migrate) pour le dev
+- [x] Index : HNSW sur `embedding`, GIN sur `tsv`, B-tree sur `document_id`
+- [x] Générer et appliquer les migrations (`pnpm db:generate`, `pnpm db:migrate`)
+- [x] Exporter un client DB unique depuis `packages/core`
+- [x] Script `pnpm db:reset` (drop + migrate) pour le dev
 
-**✅ Validation** : test Vitest qui insère un document + un chunk avec un vecteur aléatoire, puis le relit par similarité cosinus.
+**✅ Validation** : test Vitest qui insère un document + un chunk avec un vecteur aléatoire, puis le relit par similarité cosinus. ✅ (vérifié manuellement ; le test Vitest formel viendra avec le reste de la couche retrieval, étape 10)
 
 ---
 
@@ -288,3 +288,4 @@ Interface commune : `parse(input) → { title, markdown, pages?: { page, startOf
 | 2026-10-15 | 2 | Installation drizzle-orm/drizzle-kit/postgres + drizzle.config.ts dans packages/core. |
 | 2026-10-15 | 2 | Migration 0000 (`CREATE EXTENSION vector`) générée via `drizzle-kit generate --custom` et testée (appliquée sur Postgres local). `schema.ts` créé en placeholder vide, à remplir à la tâche suivante. |
 | 2026-10-15 | 2 | Schéma Drizzle complet (documents/chunks/conversations/messages) + migration 0001 générée et appliquée. `generatedAlwaysAs` de Drizzle a produit le DDL `tsvector GENERATED ALWAYS AS (...) STORED` correct sans besoin de SQL brut. Testé en insérant un chunk avec vecteur 1024d et recherche plein texte. |
+| 2026-10-15 | 2 | Étape 2 terminée : index HNSW/GIN/B-tree (migration 0002), scripts `pnpm db:generate`/`db:migrate`/`db:reset`, client `db` + schéma exportés depuis `packages/core`. Tout vérifié manuellement (insert/select via le client, reset qui recrée extension + tables + index). |

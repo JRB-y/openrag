@@ -16,7 +16,10 @@
     "typecheck": "pnpm -r run typecheck",
     "infra:up": "docker compose up -d",
     "infra:down": "docker compose down",
-    "models:pull": "bash scripts/models-pull.sh"
+    "models:pull": "bash scripts/models-pull.sh",
+    "db:generate": "pnpm --filter @openrag/core run db:generate",
+    "db:migrate": "pnpm --filter @openrag/core run db:migrate",
+    "db:reset": "pnpm --filter @openrag/core run db:reset"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

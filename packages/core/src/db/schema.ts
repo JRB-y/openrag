@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import {
   check,
   customType,
+  index,
   integer,
   jsonb,
   pgTable,
@@ -43,23 +44,31 @@ export const documents = pgTable(
   ],
 );
 
-export const chunks = pgTable("chunks", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  documentId: uuid("document_id")
-    .notNull()
-    .references(() => documents.id, { onDelete: "cascade" }),
-  chunkIndex: integer("chunk_index").notNull(),
-  content: text("content").notNull(),
-  headingPath: text("heading_path"),
-  page: integer("page"),
-  tokenCount: integer("token_count"),
-  embedding: vector("embedding", { dimensions: 1024 }).notNull(),
-  embeddingModel: text("embedding_model").notNull(),
-  tsv: tsvector("tsv").generatedAlwaysAs(
-    sql`to_tsvector('simple', coalesce(heading_path, '') || ' ' || content)`,
-  ),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
+export const chunks = pgTable(
+  "chunks",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    documentId: uuid("document_id")
+      .notNull()
+      .references(() => documents.id, { onDelete: "cascade" }),
+    chunkIndex: integer("chunk_index").notNull(),
+    content: text("content").notNull(),
+    headingPath: text("heading_path"),
+    page: integer("page"),
+    tokenCount: integer("token_count"),
+    embedding: vector("embedding", { dimensions: 1024 }).notNull(),
+    embeddingModel: text("embedding_model").notNull(),
+    tsv: tsvector("tsv").generatedAlwaysAs(
+      sql`to_tsvector('simple', coalesce(heading_path, '') || ' ' || content)`,
+    ),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("chunks_embedding_idx").using("hnsw", t.embedding.op("vector_cosine_ops")),
+    index("chunks_tsv_idx").using("gin", t.tsv),
+    index("chunks_document_idx").on(t.documentId),
+  ],
+);
 
 export const conversations = pgTable("conversations", {
   id: uuid("id").primaryKey().defaultRandom(),
