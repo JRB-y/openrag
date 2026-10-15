@@ -158,6 +158,12 @@ pending ──▶ processing ──▶ ready
 
 8. **Erreurs** : 3 tentatives avec backoff exponentiel (géré par BullMQ). Ensuite, statut `failed` avec le message d'erreur, consultable dans l'UI.
 
+### Limites connues
+
+- **Pages MediaWiki modernes (Wikipedia, Wiktionary, Wikimedia)** : le HTML rendu par Parsoid enveloppe chaque titre dans `<div class="mw-heading"><h2>...</h2><span class="mw-editsection">[modifier]</span></div>`. `@mozilla/readability` juge ce `<div>` peu dense en texte et le supprime entièrement — titre compris — ce qui cassait le fil d'Ariane de tous les chunks (`headingPath = null`). Corrigé dans `packages/core/src/parsers/mediawiki.ts` : `isMediaWikiHost()` + `preprocessMediaWikiHtml()` déplient le titre de son wrapper avant d'appeler Readability, appelés uniquement depuis `url.ts` (le `html.ts` générique reste inchangé).
+- **Blocs énormes non découpables** : certains blocs HTML convertis en un seul nœud Markdown (ex. l'infobox d'un article Wikipedia rendue en tableau HTML brut non reconnu par `turndown-plugin-gfm`, ou un bloc de liens géant comme « Voir aussi ») dépassent largement `CHUNK_SIZE_TOKENS` sans jamais être redécoupés, car le chunker ne coupe jamais *à l'intérieur* d'un nœud (voir §5.4 et `packages/core/src/chunking/split.ts`). Accepté comme limite connue pour la phase 1 — non corrigé.
+- **Bruit en tête de page** sur les sources type Wikipedia : bandeaux de maintenance, liens d'images Wikimedia avec paramètres de tracking, liens `[modifier]` résiduels peuvent apparaître dans les chunks précédant le premier titre. Accepté comme limite connue pour la phase 1 — non corrigé.
+
 ---
 
 ## 6. Pipeline de question (chat)
