@@ -111,17 +111,17 @@
 
 Interface commune : `parse(input) → { title, markdown, pages?: { page, startOffset }[] }`
 
-- [ ] `markdown.ts` / `txt.ts` : lecture directe
-- [ ] `pdf.ts` avec `unpdf` : extraction page par page, conservation du numéro de page
-- [ ] `docx.ts` : `mammoth` → HTML → `turndown` → Markdown
-- [ ] `html.ts` : `jsdom` + `@mozilla/readability` → `turndown`
-- [ ] `url.ts` : fetch (timeout, limite de taille, user-agent), puis délégation à `html.ts` ou `pdf.ts` selon le `content-type`
-- [ ] Règle `turndown` pour conserver les tableaux (plugin GFM)
-- [ ] Extraction du titre (métadonnées PDF, `<title>`, premier H1, sinon nom du fichier)
-- [ ] Dossier `fixtures/` avec un exemple par format (dont un PDF avec tableau)
-- [ ] Tests Vitest pour chaque parser
+- [x] `markdown.ts` / `txt.ts` : lecture directe
+- [x] `pdf.ts` avec `unpdf` : extraction page par page, conservation du numéro de page
+- [x] `docx.ts` : `mammoth` → HTML → `turndown` → Markdown
+- [x] `html.ts` : `jsdom` + `@mozilla/readability` → `turndown`
+- [x] `url.ts` : fetch (timeout, limite de taille, user-agent), puis délégation à `html.ts` ou `pdf.ts` selon le `content-type`
+- [x] Règle `turndown` pour conserver les tableaux (plugin GFM)
+- [x] Extraction du titre (métadonnées PDF, `<title>`, premier H1, sinon nom du fichier)
+- [x] Dossier `fixtures/` avec un exemple par format (dont un PDF avec tableau)
+- [x] Tests Vitest pour chaque parser
 
-**✅ Validation** : chaque fixture produit un Markdown lisible ; les titres et tableaux sont conservés ; les pages PDF sont correctement repérées.
+**✅ Validation** : chaque fixture produit un Markdown lisible ; les titres et tableaux sont conservés ; les pages PDF sont correctement repérées. ✅
 
 ---
 
@@ -292,3 +292,4 @@ Interface commune : `parse(input) → { title, markdown, pages?: { page, startOf
 | 2026-10-15 | 3 | Étape 3 terminée : API Fastify minimale (`apps/api`) avec plugin `db`, gestionnaire d'erreurs uniforme, route `/health` (check Postgres/Redis/Ollama) et `tsx watch`. Vérifié en conditions réelles : 200 tous services up, 503 après arrêt de Redis, 200 au redémarrage, arrêt propre sur SIGTERM. Port API (3001) géré localement dans `server.ts`, pas ajouté au schéma Zod de `packages/core` (hors périmètre DOCS.md §11). Check Redis fait à la main en RESP brut (pas de dépendance ioredis avant l'étape 4). |
 | 2026-10-15 | 4 | Étape 4 terminée : queue `ingestion` (BullMQ) définie dans `packages/core` avec `createIngestionQueue()` (3 tentatives, backoff exponentiel, cleanup après 7 jours), plugin `queue` dans l'API, worker factice qui logue `documentId` dans `apps/worker`. Vérifié en conditions réelles : job ajouté via la queue de l'API consommé et logué par le worker ; retries (3 tentatives, délais croissants ~500ms/~1000ms) vérifiés sur une queue jetable isolée sans toucher au code du worker réel. |
 | 2026-10-15 | 5 | Étape 5 terminée : routes `/documents/upload` (multipart, détection réelle du type via `file-type`, fallback par extension pour md/txt/html), `/documents/url` (protection SSRF via résolution DNS + `ipaddr.js`), `GET /documents`, `GET /documents/:id` (chunks paginés), `DELETE`, `POST /reindex`. Interface `Storage`/`LocalStorage` dans `packages/core`. Bug corrigé en cours de route : `STORAGE_DIR` relatif se résolvait différemment selon le cwd de l'API vs du worker — ancré maintenant à la racine du repo. Tout testé en conditions réelles (PDF valide accepté, .exe renommé en .pdf rejeté en 415, URL publique acceptée, 127.0.0.1 et 169.254.169.254 rejetées, path traversal dans le nom de fichier neutralisé, CRUD complet). |
+| 2026-10-15 | 6 | Étape 6 terminée : parsers markdown/txt/pdf(unpdf)/docx(mammoth)/html(jsdom+Readability)/url, conversion HTML→Markdown via turndown+plugin GFM (règle custom ajoutée pour les cellules de tableau que mammoth enveloppe dans des `<p>`). Fixtures générées à la main (dont un `.docx` et un `.pdf` avec tableau). 14 tests Vitest, tous verts. `vitest.config.ts` charge maintenant `.env` automatiquement (via `loadEnv` de Vite) — avant, `pnpm test` plantait silencieusement sans `source .env` manuel. |

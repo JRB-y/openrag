@@ -1,0 +1,4 @@
+Note interne
+
+Ce fichier texte ne contient aucune mise en forme particulière.
+Il sert a verifier que le parser txt lit le contenu tel quel.
