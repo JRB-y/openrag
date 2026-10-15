@@ -16,3 +16,5 @@ export { parseUrl } from "./parsers/url.js";
 export * from "./api-types.js";
 export { chunkMarkdown } from "./chunking/chunk-markdown.js";
 export type { Chunk } from "./chunking/types.js";
+export { embed } from "./embeddings/embed.js";
+export { chunkToEmbeddingText } from "./embeddings/contextualize.js";

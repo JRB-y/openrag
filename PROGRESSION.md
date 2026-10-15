@@ -143,14 +143,14 @@ Interface commune : `parse(input) → { title, markdown, pages?: { page, startOf
 
 ## Étape 8 — Embeddings (packages/core/embeddings) 🟢
 
-- [ ] Installer `ai` (Vercel AI SDK) + un provider Ollama compatible
-- [ ] Interface `embed(texts: string[]) → number[][]`
-- [ ] Traitement par lots de 32
-- [ ] Texte embeddé = `headingPath + "\n\n" + content` (contextualisation)
-- [ ] Vérifier la dimension renvoyée (= `EMBEDDING_DIMENSIONS`), sinon erreur explicite
-- [ ] Retry sur erreur réseau
+- [x] Installer `ai` (Vercel AI SDK) + un provider Ollama compatible
+- [x] Interface `embed(texts: string[]) → number[][]`
+- [x] Traitement par lots de 32
+- [x] Texte embeddé = `headingPath + "\n\n" + content` (contextualisation)
+- [x] Vérifier la dimension renvoyée (= `EMBEDDING_DIMENSIONS`), sinon erreur explicite
+- [x] Retry sur erreur réseau
 
-**✅ Validation** : deux phrases de sens proche ont une similarité cosinus nettement supérieure à deux phrases sans rapport.
+**✅ Validation** : deux phrases de sens proche ont une similarité cosinus nettement supérieure à deux phrases sans rapport. ✅
 
 ---
 
@@ -296,3 +296,4 @@ Interface commune : `parse(input) → { title, markdown, pages?: { page, startOf
 | 2026-10-15 | 9 (anticipé) | À la demande de l'utilisateur, on saute à l'étape 14 (front) pour tester visuellement upload + parsing. Câblage **minimal** du worker (`apps/worker/src/ingest.ts`) : appelle le bon parser selon `mimeType`/`sourceType`, met à jour `title` et passe le document à `ready`, ou `failed` (avec message) seulement après épuisement des 3 tentatives BullMQ. Pas de chunking/embeddings/hash de dédup ici — ça reste la portée complète de l'étape 9, non cochée. Storage a gagné une méthode `read(documentId)`. Bug corrigé au passage : `POST /documents/url` renvoyait 500 au lieu de 400 sur un domaine inexistant (ENOTFOUND non catché). |
 | 2026-10-15 | 14 (partiel) | Front Next.js créé dans `apps/web` (App Router, Tailwind v3, shadcn/ui style "new-york", thème sombre uniquement). Page Documents complète : drag & drop, ajout URL, liste avec badges de statut, polling auto, ré-indexation, suppression avec confirmation, affichage des erreurs. Page Chat non construite (API `/chat` pas encore implémentée). Type `DocumentDTO` partagé via `packages/core` entre l'API et le front. Testé en conditions réelles dans le navigateur (Claude in Chrome) : upload PDF → ready, URL → ready, fichier non supporté → bandeau d'erreur, suppression, ré-indexation. 3 bugs trouvés et corrigés en testant : (1) `create-next-app`/`shadcn@latest` résolvent des versions cassées/instables sur le registre — scaffold fait à la main + CLI shadcn épinglé en 2.10.0 ; (2) mon `tailwind.config.ts` enveloppait les couleurs en `hsl(var(--x))` alors que les variables CSS générées par shadcn sont des `oklch(...)` complets → fond transparent invisible ; (3) `@fastify/cors` n'autorisait pas `DELETE` par défaut (préflight ne listait que GET/HEAD/POST) → `methods` explicite ajouté. |
 | 2026-10-15 | 7 | Étape 7 terminée : chunking structurel (`packages/core/chunking`). AST via `remark`/`remark-gfm`, sections par H1/H2/H3 avec fil d'Ariane, fusion des sections < 20 tokens, sous-découpage par nœud (jamais au milieu d'un paragraphe/tableau/code) avec chevauchement, page associée via les offsets `unist`. 21 tests Vitest. Bug trouvé en testant : `takeOverlap` gardait toujours au moins un nœud entier même avec `chunkOverlapTokens: 0` — corrigé pour renvoyer un chevauchement vide dans ce cas. |
+| 2026-10-15 | 8 | Étape 8 terminée : embeddings (`packages/core/embeddings`) via `ai` (Vercel AI SDK) + `@ai-sdk/openai-compatible` branché sur l'endpoint OpenAI-compatible d'Ollama (plutôt qu'un package communautaire `ollama-ai-provider` moins maintenu). `embed(texts)` par lots de 32, retry réseau via le `maxRetries` intégré d'`embedMany` (pas de logique maison), erreur explicite si la dimension ne correspond pas à `EMBEDDING_DIMENSIONS`. `chunkToEmbeddingText()` sépare la contextualisation de l'embedding brut. Vérifié en conditions réelles : similarité cosinus 0.74 (phrases proches) vs 0.39 (sans rapport), batching correct sur 70 textes, erreur bien levée avec une dimension forcée à 999. |
