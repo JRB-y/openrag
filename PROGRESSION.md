@@ -232,16 +232,16 @@ Interface commune : `parse(input) → { title, markdown, pages?: { page, startOf
 ## Étape 14 — Front (apps/web) 🟡
 
 ### Setup
-- [ ] Next.js (App Router) + Tailwind + shadcn/ui
-- [ ] Client API typé (types partagés depuis `packages/core`)
+- [x] Next.js (App Router) + Tailwind + shadcn/ui
+- [x] Client API typé (types partagés depuis `packages/core`)
 
 ### Page Documents
-- [ ] Zone de drag & drop multi-fichiers
-- [ ] Champ d'ajout d'URL
-- [ ] Liste des documents : titre, type, statut (badge), nombre de chunks, date
-- [ ] Rafraîchissement auto des statuts tant qu'un document est `pending`/`processing` (polling)
-- [ ] Actions : ré-indexer, supprimer (avec confirmation)
-- [ ] Affichage du message d'erreur pour les documents `failed`
+- [x] Zone de drag & drop multi-fichiers
+- [x] Champ d'ajout d'URL
+- [x] Liste des documents : titre, type, statut (badge), nombre de chunks, date
+- [x] Rafraîchissement auto des statuts tant qu'un document est `pending`/`processing` (polling)
+- [x] Actions : ré-indexer, supprimer (avec confirmation)
+- [x] Affichage du message d'erreur pour les documents `failed`
 
 ### Page Chat
 - [ ] Sidebar : liste des conversations + « Nouvelle conversation »
@@ -251,7 +251,7 @@ Interface commune : `parse(input) → { title, markdown, pages?: { page, startOf
 - [ ] État vide (« Aucun document indexé, commencez par en ajouter »)
 - [ ] Bouton stop pendant la génération
 
-**✅ Validation** : parcours complet sans toucher au terminal : uploader un PDF → attendre `ready` → poser une question → cliquer sur une citation → voir l'extrait.
+**✅ Validation (partielle)** : parcours « Page Documents » testé dans le navigateur : upload PDF → `ready` avec titre extrait, ajout URL → `ready`, fichier non supporté → bandeau d'erreur 415, suppression avec confirmation, ré-indexation. La « Page Chat » n'est pas construite : l'API ne supporte pas encore `/chat`/`/conversations` (étapes 11-13). Saut volontaire demandé par l'utilisateur pour tester visuellement upload + parsing avant de continuer dans l'ordre.
 
 ---
 
@@ -294,3 +294,4 @@ Interface commune : `parse(input) → { title, markdown, pages?: { page, startOf
 | 2026-10-15 | 5 | Étape 5 terminée : routes `/documents/upload` (multipart, détection réelle du type via `file-type`, fallback par extension pour md/txt/html), `/documents/url` (protection SSRF via résolution DNS + `ipaddr.js`), `GET /documents`, `GET /documents/:id` (chunks paginés), `DELETE`, `POST /reindex`. Interface `Storage`/`LocalStorage` dans `packages/core`. Bug corrigé en cours de route : `STORAGE_DIR` relatif se résolvait différemment selon le cwd de l'API vs du worker — ancré maintenant à la racine du repo. Tout testé en conditions réelles (PDF valide accepté, .exe renommé en .pdf rejeté en 415, URL publique acceptée, 127.0.0.1 et 169.254.169.254 rejetées, path traversal dans le nom de fichier neutralisé, CRUD complet). |
 | 2026-10-15 | 6 | Étape 6 terminée : parsers markdown/txt/pdf(unpdf)/docx(mammoth)/html(jsdom+Readability)/url, conversion HTML→Markdown via turndown+plugin GFM (règle custom ajoutée pour les cellules de tableau que mammoth enveloppe dans des `<p>`). Fixtures générées à la main (dont un `.docx` et un `.pdf` avec tableau). 14 tests Vitest, tous verts. `vitest.config.ts` charge maintenant `.env` automatiquement (via `loadEnv` de Vite) — avant, `pnpm test` plantait silencieusement sans `source .env` manuel. |
 | 2026-10-15 | 9 (anticipé) | À la demande de l'utilisateur, on saute à l'étape 14 (front) pour tester visuellement upload + parsing. Câblage **minimal** du worker (`apps/worker/src/ingest.ts`) : appelle le bon parser selon `mimeType`/`sourceType`, met à jour `title` et passe le document à `ready`, ou `failed` (avec message) seulement après épuisement des 3 tentatives BullMQ. Pas de chunking/embeddings/hash de dédup ici — ça reste la portée complète de l'étape 9, non cochée. Storage a gagné une méthode `read(documentId)`. Bug corrigé au passage : `POST /documents/url` renvoyait 500 au lieu de 400 sur un domaine inexistant (ENOTFOUND non catché). |
+| 2026-10-15 | 14 (partiel) | Front Next.js créé dans `apps/web` (App Router, Tailwind v3, shadcn/ui style "new-york", thème sombre uniquement). Page Documents complète : drag & drop, ajout URL, liste avec badges de statut, polling auto, ré-indexation, suppression avec confirmation, affichage des erreurs. Page Chat non construite (API `/chat` pas encore implémentée). Type `DocumentDTO` partagé via `packages/core` entre l'API et le front. Testé en conditions réelles dans le navigateur (Claude in Chrome) : upload PDF → ready, URL → ready, fichier non supporté → bandeau d'erreur, suppression, ré-indexation. 3 bugs trouvés et corrigés en testant : (1) `create-next-app`/`shadcn@latest` résolvent des versions cassées/instables sur le registre — scaffold fait à la main + CLI shadcn épinglé en 2.10.0 ; (2) mon `tailwind.config.ts` enveloppait les couleurs en `hsl(var(--x))` alors que les variables CSS générées par shadcn sont des `oklch(...)` complets → fond transparent invisible ; (3) `@fastify/cors` n'autorisait pas `DELETE` par défaut (préflight ne listait que GET/HEAD/POST) → `methods` explicite ajouté. |

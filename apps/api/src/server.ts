@@ -17,7 +17,9 @@ app.setValidatorCompiler(validatorCompiler);
 app.setSerializerCompiler(serializerCompiler);
 registerErrorHandler(app);
 
-await app.register(cors);
+await app.register(cors, {
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+});
 await app.register(multipart, {
   limits: { fileSize: env.MAX_UPLOAD_MB * 1024 * 1024 },
 });

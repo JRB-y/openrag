@@ -1,8 +1,10 @@
-import type { chunks, documents } from "@openrag/core";
+import type { ChunkSummaryDTO, DocumentDTO, chunks, documents } from "@openrag/core";
 
-export function serializeDocument(doc: typeof documents.$inferSelect) {
+export function serializeDocument(doc: typeof documents.$inferSelect): DocumentDTO {
   return {
     ...doc,
+    sourceType: doc.sourceType as DocumentDTO["sourceType"],
+    status: doc.status as DocumentDTO["status"],
     createdAt: doc.createdAt.toISOString(),
     updatedAt: doc.updatedAt.toISOString(),
   };
@@ -13,7 +15,7 @@ type ChunkSummary = Pick<
   "id" | "chunkIndex" | "content" | "headingPath" | "page" | "tokenCount" | "createdAt"
 >;
 
-export function serializeChunk(chunk: ChunkSummary) {
+export function serializeChunk(chunk: ChunkSummary): ChunkSummaryDTO {
   return {
     ...chunk,
     createdAt: chunk.createdAt.toISOString(),

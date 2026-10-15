@@ -13,3 +13,4 @@ export { parseMarkdown } from "./parsers/markdown.js";
 export { parsePdf } from "./parsers/pdf.js";
 export { parseTxt } from "./parsers/txt.js";
 export { parseUrl } from "./parsers/url.js";
+export * from "./api-types.js";
