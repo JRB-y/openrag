@@ -1,6 +1,7 @@
 import { env } from "../config.js";
 import { assertPublicHttpUrl } from "../security/safe-url.js";
 import { parseHtml } from "./html.js";
+import { isMediaWikiHost, preprocessMediaWikiHtml } from "./mediawiki.js";
 import { parsePdf } from "./pdf.js";
 import type { ParseResult } from "./types.js";
 
@@ -54,6 +55,10 @@ export async function parseUrl(rawUrl: string): Promise<ParseResult> {
 
   if (contentType.includes("application/pdf")) {
     return parsePdf(buffer, filename);
+  }
+
+  if (isMediaWikiHost(url.hostname)) {
+    return parseHtml(Buffer.from(preprocessMediaWikiHtml(buffer.toString("utf-8"))), filename);
   }
 
   return parseHtml(buffer, filename);
