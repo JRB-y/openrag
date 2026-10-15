@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { assertPublicHttpUrl, chunks, documents, storage, UnsafeUrlError } from "@openrag/core";
+import { assertPublicHttpUrl, chunks, documents, storage } from "@openrag/core";
 import { desc, eq } from "drizzle-orm";
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
@@ -85,10 +85,10 @@ const documentsRoutes: FastifyPluginAsyncZod = async (app) => {
       try {
         safeUrl = await assertPublicHttpUrl(request.body.url);
       } catch (err) {
-        if (err instanceof UnsafeUrlError) {
-          return reply.status(400).send({ error: "UnsafeUrl", message: err.message });
-        }
-        throw err;
+        // DNS resolution failures (unknown host) are as much a client
+        // error as an UnsafeUrlError - neither is a server-side bug.
+        const message = err instanceof Error ? err.message : "Invalid URL";
+        return reply.status(400).send({ error: "InvalidUrl", message });
       }
 
       const documentId = randomUUID();

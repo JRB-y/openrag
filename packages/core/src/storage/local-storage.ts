@@ -1,4 +1,4 @@
-import { mkdir, rm, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { env } from "../config.js";
@@ -21,6 +21,16 @@ export class LocalStorage implements Storage {
     const filePath = path.join(dir, path.basename(filename));
     await writeFile(filePath, data);
     return filePath;
+  }
+
+  async read(documentId: string) {
+    const dir = path.join(STORAGE_ROOT, documentId);
+    const [filename] = await readdir(dir);
+    if (!filename) {
+      throw new Error(`No stored file found for document ${documentId}`);
+    }
+
+    return { filename, data: await readFile(path.join(dir, filename)) };
   }
 
   async delete(documentId: string) {

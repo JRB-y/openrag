@@ -80,6 +80,9 @@ importers:
       bullmq:
         specifier: ^6.3.15
         version: 6.3.15(ioredis@6.0.0)
+      drizzle-orm:
+        specifier: ^0.45.4
+        version: 0.45.4(postgres@3.4.9)
       pino:
         specifier: ^10.4.0
         version: 10.4.0
