@@ -71,14 +71,14 @@
 
 ## Étape 4 — File de jobs (BullMQ) 🟢
 
-- [ ] Installer `bullmq` + `ioredis`
-- [ ] Définir la queue `ingestion` et le type du payload `{ documentId }` dans `packages/core`
-- [ ] Plugin `queue` dans l'API
-- [ ] `apps/worker/src/index.ts` : worker BullMQ, concurrence configurable, logs Pino
-- [ ] Options de job : 3 tentatives, backoff exponentiel, suppression des jobs terminés après N jours
-- [ ] Job factice qui logue le `documentId`
+- [x] Installer `bullmq` + `ioredis`
+- [x] Définir la queue `ingestion` et le type du payload `{ documentId }` dans `packages/core`
+- [x] Plugin `queue` dans l'API
+- [x] `apps/worker/src/index.ts` : worker BullMQ, concurrence configurable, logs Pino
+- [x] Options de job : 3 tentatives, backoff exponentiel, suppression des jobs terminés après N jours
+- [x] Job factice qui logue le `documentId`
 
-**✅ Validation** : un job ajouté depuis l'API est consommé et logué par le worker ; un job qui lève une erreur est retenté 3 fois.
+**✅ Validation** : un job ajouté depuis l'API est consommé et logué par le worker ; un job qui lève une erreur est retenté 3 fois. ✅
 
 ---
 
@@ -290,3 +290,4 @@ Interface commune : `parse(input) → { title, markdown, pages?: { page, startOf
 | 2026-10-15 | 2 | Schéma Drizzle complet (documents/chunks/conversations/messages) + migration 0001 générée et appliquée. `generatedAlwaysAs` de Drizzle a produit le DDL `tsvector GENERATED ALWAYS AS (...) STORED` correct sans besoin de SQL brut. Testé en insérant un chunk avec vecteur 1024d et recherche plein texte. |
 | 2026-10-15 | 2 | Étape 2 terminée : index HNSW/GIN/B-tree (migration 0002), scripts `pnpm db:generate`/`db:migrate`/`db:reset`, client `db` + schéma exportés depuis `packages/core`. Tout vérifié manuellement (insert/select via le client, reset qui recrée extension + tables + index). |
 | 2026-10-15 | 3 | Étape 3 terminée : API Fastify minimale (`apps/api`) avec plugin `db`, gestionnaire d'erreurs uniforme, route `/health` (check Postgres/Redis/Ollama) et `tsx watch`. Vérifié en conditions réelles : 200 tous services up, 503 après arrêt de Redis, 200 au redémarrage, arrêt propre sur SIGTERM. Port API (3001) géré localement dans `server.ts`, pas ajouté au schéma Zod de `packages/core` (hors périmètre DOCS.md §11). Check Redis fait à la main en RESP brut (pas de dépendance ioredis avant l'étape 4). |
+| 2026-10-15 | 4 | Étape 4 terminée : queue `ingestion` (BullMQ) définie dans `packages/core` avec `createIngestionQueue()` (3 tentatives, backoff exponentiel, cleanup après 7 jours), plugin `queue` dans l'API, worker factice qui logue `documentId` dans `apps/worker`. Vérifié en conditions réelles : job ajouté via la queue de l'API consommé et logué par le worker ; retries (3 tentatives, délais croissants ~500ms/~1000ms) vérifiés sur une queue jetable isolée sans toucher au code du worker réel. |
