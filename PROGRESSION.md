@@ -85,25 +85,25 @@
 ## Étape 5 — Réception des documents 🟡
 
 ### Upload de fichiers
-- [ ] Route `POST /documents/upload` (multipart, plusieurs fichiers)
-- [ ] Limite de taille (`MAX_UPLOAD_MB`)
-- [ ] Détection du vrai type avec `file-type` (+ fallback extension pour MD/TXT)
-- [ ] Refus des types non supportés (`415`)
-- [ ] Stockage dans `STORAGE_DIR/<documentId>/<nom-original>` derrière une interface `Storage` (pour passer à S3 plus tard)
-- [ ] Création du document (`status = pending`) + ajout du job
+- [x] Route `POST /documents/upload` (multipart, plusieurs fichiers)
+- [x] Limite de taille (`MAX_UPLOAD_MB`)
+- [x] Détection du vrai type avec `file-type` (+ fallback extension pour MD/TXT)
+- [x] Refus des types non supportés (`415`)
+- [x] Stockage dans `STORAGE_DIR/<documentId>/<nom-original>` derrière une interface `Storage` (pour passer à S3 plus tard)
+- [x] Création du document (`status = pending`) + ajout du job
 
 ### Ajout d'URL
-- [ ] Route `POST /documents/url` (body validé par Zod)
-- [ ] Protection SSRF : http/https uniquement, résolution DNS, refus des IP privées / loopback / link-local
-- [ ] Création du document + ajout du job
+- [x] Route `POST /documents/url` (body validé par Zod)
+- [x] Protection SSRF : http/https uniquement, résolution DNS, refus des IP privées / loopback / link-local
+- [x] Création du document + ajout du job
 
 ### Gestion
-- [ ] `GET /documents` (liste + statut + nombre de chunks)
-- [ ] `GET /documents/:id` (détail + chunks paginés)
-- [ ] `DELETE /documents/:id` (supprime fichier + document ; chunks en cascade)
-- [ ] `POST /documents/:id/reindex` (remet `pending` + nouveau job)
+- [x] `GET /documents` (liste + statut + nombre de chunks)
+- [x] `GET /documents/:id` (détail + chunks paginés)
+- [x] `DELETE /documents/:id` (supprime fichier + document ; chunks en cascade)
+- [x] `POST /documents/:id/reindex` (remet `pending` + nouveau job)
 
-**✅Validation** : uploader un PDF et ajouter une URL créent 2 documents `pending` et 2 jobs ; une URL `http://127.0.0.1` est refusée ; un `.exe` renommé en `.pdf` est refusé.
+**✅Validation** : uploader un PDF et ajouter une URL créent 2 documents `pending` et 2 jobs ; une URL `http://127.0.0.1` est refusée ; un `.exe` renommé en `.pdf` est refusé. ✅
 
 ---
 
@@ -291,3 +291,4 @@ Interface commune : `parse(input) → { title, markdown, pages?: { page, startOf
 | 2026-10-15 | 2 | Étape 2 terminée : index HNSW/GIN/B-tree (migration 0002), scripts `pnpm db:generate`/`db:migrate`/`db:reset`, client `db` + schéma exportés depuis `packages/core`. Tout vérifié manuellement (insert/select via le client, reset qui recrée extension + tables + index). |
 | 2026-10-15 | 3 | Étape 3 terminée : API Fastify minimale (`apps/api`) avec plugin `db`, gestionnaire d'erreurs uniforme, route `/health` (check Postgres/Redis/Ollama) et `tsx watch`. Vérifié en conditions réelles : 200 tous services up, 503 après arrêt de Redis, 200 au redémarrage, arrêt propre sur SIGTERM. Port API (3001) géré localement dans `server.ts`, pas ajouté au schéma Zod de `packages/core` (hors périmètre DOCS.md §11). Check Redis fait à la main en RESP brut (pas de dépendance ioredis avant l'étape 4). |
 | 2026-10-15 | 4 | Étape 4 terminée : queue `ingestion` (BullMQ) définie dans `packages/core` avec `createIngestionQueue()` (3 tentatives, backoff exponentiel, cleanup après 7 jours), plugin `queue` dans l'API, worker factice qui logue `documentId` dans `apps/worker`. Vérifié en conditions réelles : job ajouté via la queue de l'API consommé et logué par le worker ; retries (3 tentatives, délais croissants ~500ms/~1000ms) vérifiés sur une queue jetable isolée sans toucher au code du worker réel. |
+| 2026-10-15 | 5 | Étape 5 terminée : routes `/documents/upload` (multipart, détection réelle du type via `file-type`, fallback par extension pour md/txt/html), `/documents/url` (protection SSRF via résolution DNS + `ipaddr.js`), `GET /documents`, `GET /documents/:id` (chunks paginés), `DELETE`, `POST /reindex`. Interface `Storage`/`LocalStorage` dans `packages/core`. Bug corrigé en cours de route : `STORAGE_DIR` relatif se résolvait différemment selon le cwd de l'API vs du worker — ancré maintenant à la racine du repo. Tout testé en conditions réelles (PDF valide accepté, .exe renommé en .pdf rejeté en 415, URL publique acceptée, 127.0.0.1 et 169.254.169.254 rejetées, path traversal dans le nom de fichier neutralisé, CRUD complet). |
