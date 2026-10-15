@@ -1,0 +1,7 @@
+{
+  "name": "openrag",
+  "version": "0.0.0",
+  "private": true,
+  "license": "ISC",
+  "packageManager": "pnpm@10.33.0"
+}
