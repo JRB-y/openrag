@@ -21,8 +21,9 @@ export function listDocuments(): Promise<DocumentDTO[]> {
   return request<DocumentDTO[]>("/documents");
 }
 
-export function getDocument(id: string): Promise<DocumentDetailDTO> {
-  return request<DocumentDetailDTO>(`/documents/${id}`);
+export function getDocument(id: string, options?: { limit?: number }): Promise<DocumentDetailDTO> {
+  const limit = options?.limit ?? 200; // server max; no pagination UI yet
+  return request<DocumentDetailDTO>(`/documents/${id}?limit=${limit}`);
 }
 
 export function uploadDocuments(files: File[]) {

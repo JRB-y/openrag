@@ -1,7 +1,7 @@
 "use client";
 
 import type { DocumentDTO } from "@openrag/core";
-import { FileText, Globe, RefreshCw, Trash2 } from "lucide-react";
+import { Eye, FileText, Globe, RefreshCw, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,10 +27,12 @@ function formatDate(iso: string) {
 
 export function DocumentsTable({
   documents,
+  onViewChunks,
   onReindex,
   onDelete,
 }: {
   documents: DocumentDTO[];
+  onViewChunks: (id: string) => void;
   onReindex: (id: string) => void;
   onDelete: (id: string) => void;
 }) {
@@ -83,6 +85,15 @@ export function DocumentsTable({
                 <td className="px-4 py-3 text-muted-foreground">{formatDate(doc.createdAt)}</td>
                 <td className="px-4 py-3">
                   <div className="flex justify-end gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      title={doc.chunkCount ? "Voir les chunks" : "Aucun chunk à afficher"}
+                      disabled={!doc.chunkCount}
+                      onClick={() => onViewChunks(doc.id)}
+                    >
+                      <Eye className="size-4" />
+                    </Button>
                     <Button
                       variant="ghost"
                       size="icon"

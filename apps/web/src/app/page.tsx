@@ -3,6 +3,7 @@
 import type { DocumentDTO } from "@openrag/core";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { addUrlDocument, deleteDocument, listDocuments, reindexDocument, uploadDocuments } from "@/lib/api";
+import { ChunksDialog } from "@/components/chunks-dialog";
 import { DocumentsTable } from "@/components/documents-table";
 import { UploadZone } from "@/components/upload-zone";
 import { UrlForm } from "@/components/url-form";
@@ -12,6 +13,7 @@ const POLL_INTERVAL_MS = 2000;
 export default function Home() {
   const [documents, setDocuments] = useState<DocumentDTO[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [viewingDocumentId, setViewingDocumentId] = useState<string | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const refresh = useCallback(async () => {
@@ -105,7 +107,17 @@ export default function Home() {
       <UploadZone onFiles={handleFiles} />
       <UrlForm onSubmit={handleUrl} />
 
-      <DocumentsTable documents={documents} onReindex={handleReindex} onDelete={handleDelete} />
+      <DocumentsTable
+        documents={documents}
+        onViewChunks={setViewingDocumentId}
+        onReindex={handleReindex}
+        onDelete={handleDelete}
+      />
+
+      <ChunksDialog
+        documentId={viewingDocumentId}
+        onOpenChange={(open) => !open && setViewingDocumentId(null)}
+      />
     </main>
   );
 }
