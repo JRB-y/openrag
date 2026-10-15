@@ -156,17 +156,17 @@ Interface commune : `parse(input) → { title, markdown, pages?: { page, startOf
 
 ## Étape 9 — Job d'ingestion complet (apps/worker) 🔴
 
-- [ ] Passer le document en `processing`
-- [ ] Charger la source (fichier ou URL) → parser
-- [ ] Calculer le hash SHA-256 du Markdown
-  - [ ] Ré-indexation avec hash identique → repasser en `ready` sans rien refaire
-  - [ ] Nouveau document dont le hash existe déjà → marquer comme doublon (`failed` + message, ou lien vers l'original)
-- [ ] Chunker → embedder
-- [ ] **Transaction** : supprimer les anciens chunks → insérer les nouveaux → mettre à jour `content_hash`, `chunk_count`, `title`, `status = ready`
-- [ ] En cas d'erreur définitive : `status = failed` + message dans `error`
-- [ ] Logs structurés avec la durée de chaque étape
+- [x] Passer le document en `processing`
+- [x] Charger la source (fichier ou URL) → parser
+- [x] Calculer le hash SHA-256 du Markdown
+  - [x] Ré-indexation avec hash identique → repasser en `ready` sans rien refaire
+  - [x] Nouveau document dont le hash existe déjà → marquer comme doublon (`failed` + message, ou lien vers l'original)
+- [x] Chunker → embedder
+- [x] **Transaction** : supprimer les anciens chunks → insérer les nouveaux → mettre à jour `content_hash`, `chunk_count`, `title`, `status = ready`
+- [x] En cas d'erreur définitive : `status = failed` + message dans `error`
+- [x] Logs structurés avec la durée de chaque étape
 
-**✅ Validation** : uploader un PDF de 20 pages → le document passe à `ready` avec ses chunks en base ; arrêter Ollama pendant l'ingestion → retries puis `failed` avec un message clair ; relancer → `ready`.
+**✅ Validation** : uploader un PDF de 20 pages → le document passe à `ready` avec ses chunks en base ; arrêter Ollama pendant l'ingestion → retries puis `failed` avec un message clair ; relancer → `ready`. ✅
 
 ---
 
@@ -297,3 +297,4 @@ Interface commune : `parse(input) → { title, markdown, pages?: { page, startOf
 | 2026-10-15 | 14 (partiel) | Front Next.js créé dans `apps/web` (App Router, Tailwind v3, shadcn/ui style "new-york", thème sombre uniquement). Page Documents complète : drag & drop, ajout URL, liste avec badges de statut, polling auto, ré-indexation, suppression avec confirmation, affichage des erreurs. Page Chat non construite (API `/chat` pas encore implémentée). Type `DocumentDTO` partagé via `packages/core` entre l'API et le front. Testé en conditions réelles dans le navigateur (Claude in Chrome) : upload PDF → ready, URL → ready, fichier non supporté → bandeau d'erreur, suppression, ré-indexation. 3 bugs trouvés et corrigés en testant : (1) `create-next-app`/`shadcn@latest` résolvent des versions cassées/instables sur le registre — scaffold fait à la main + CLI shadcn épinglé en 2.10.0 ; (2) mon `tailwind.config.ts` enveloppait les couleurs en `hsl(var(--x))` alors que les variables CSS générées par shadcn sont des `oklch(...)` complets → fond transparent invisible ; (3) `@fastify/cors` n'autorisait pas `DELETE` par défaut (préflight ne listait que GET/HEAD/POST) → `methods` explicite ajouté. |
 | 2026-10-15 | 7 | Étape 7 terminée : chunking structurel (`packages/core/chunking`). AST via `remark`/`remark-gfm`, sections par H1/H2/H3 avec fil d'Ariane, fusion des sections < 20 tokens, sous-découpage par nœud (jamais au milieu d'un paragraphe/tableau/code) avec chevauchement, page associée via les offsets `unist`. 21 tests Vitest. Bug trouvé en testant : `takeOverlap` gardait toujours au moins un nœud entier même avec `chunkOverlapTokens: 0` — corrigé pour renvoyer un chevauchement vide dans ce cas. |
 | 2026-10-15 | 8 | Étape 8 terminée : embeddings (`packages/core/embeddings`) via `ai` (Vercel AI SDK) + `@ai-sdk/openai-compatible` branché sur l'endpoint OpenAI-compatible d'Ollama (plutôt qu'un package communautaire `ollama-ai-provider` moins maintenu). `embed(texts)` par lots de 32, retry réseau via le `maxRetries` intégré d'`embedMany` (pas de logique maison), erreur explicite si la dimension ne correspond pas à `EMBEDDING_DIMENSIONS`. `chunkToEmbeddingText()` sépare la contextualisation de l'embedding brut. Vérifié en conditions réelles : similarité cosinus 0.74 (phrases proches) vs 0.39 (sans rapport), batching correct sur 70 textes, erreur bien levée avec une dimension forcée à 999. |
+| 2026-10-16 | 9 | Étape 9 terminée : `apps/worker/src/ingest.ts` réécrit pour assembler parse → hash SHA-256 → chunk → embed → écriture transactionnelle (delete anciens chunks + insert nouveaux + update document en une seule `db.transaction`). Dédup via `content_hash` : ré-indexation à hash identique → `ready` sans refaire chunk/embed/write (juste `extract` pour vérifier) ; nouveau document avec hash déjà présent sur un autre document `ready` → `failed` direct (pas de retry, car pas une erreur transitoire) avec message pointant vers le document original — choix de la variante "failed + message" plutôt que "lien vers l'original" (pas de nouvelle colonne/migration nécessaire, DOCS.md présentait les deux comme équivalentes). Logs structurés par étape (`extract`/`chunk`/`embed`/`write`) avec durée en ms. Scénario complet validé en conditions réelles : upload PDF → ready avec 1 chunk (embedding 1024 dims vérifié en SQL) ; réindexation hash identique → skip confirmé par les logs ; upload du même contenu sous un id différent → failed + message doublon ; Ollama coupé pendant l'embedding → échec après 3 tentatives BullMQ avec message d'erreur clair → Ollama relancé → réindexation → ready. |
