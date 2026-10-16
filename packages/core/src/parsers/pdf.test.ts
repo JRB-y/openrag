@@ -42,4 +42,14 @@ describe("parsePdf", () => {
     const result = await parsePdf(PDF_WITHOUT_TITLE, "renamed.pdf");
     expect(result.title).toBe("renamed");
   });
+
+  it("marks up a visually bigger line as a Markdown heading", async () => {
+    // "Guide RH" is set in 14pt vs. 10pt body text in the fixture PDF -
+    // a real enough size gap that it should be recovered as a heading,
+    // letting the chunker build a heading breadcrumb from a PDF.
+    const buffer = await readFile(path.join(fixturesDir, "sample.pdf"));
+    const result = await parsePdf(buffer, "sample.pdf");
+
+    expect(result.markdown).toContain("# Guide RH");
+  });
 });
