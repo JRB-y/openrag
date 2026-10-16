@@ -22,3 +22,7 @@ export { hybridSearch } from "./retrieval/hybrid-search.js";
 export type { RetrievedChunk } from "./retrieval/types.js";
 export { rerank } from "./reranking/rerank.js";
 export type { RerankedChunk } from "./reranking/rerank.js";
+export { generateAnswer } from "./generation/generate.js";
+export type { GenerateAnswerResult } from "./generation/generate.js";
+export { rewriteQuestion } from "./generation/rewrite.js";
+export type { ChatMessage, Citation } from "./generation/types.js";
