@@ -19,7 +19,12 @@ import {
 import { and, eq, ne } from "drizzle-orm";
 import pino from "pino";
 
-const logger = pino({ name: "worker" });
+const logger = pino({
+  name: "worker",
+  transport: process.env.VITEST
+    ? undefined
+    : { target: "pino-pretty", options: { translateTime: "HH:MM:ss", ignore: "pid,hostname" } },
+});
 
 async function parseStoredFile(documentId: string, mimeType: string | null): Promise<ParseResult> {
   const { filename, data } = await storage.read(documentId);

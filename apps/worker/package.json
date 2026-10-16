@@ -11,6 +11,7 @@
     "@openrag/core": "workspace:*",
     "bullmq": "^6.3.15",
     "drizzle-orm": "^0.45.4",
-    "pino": "^10.4.0"
+    "pino": "^10.4.0",
+    "pino-pretty": "^13.2.0"
   }
 }

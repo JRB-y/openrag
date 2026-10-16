@@ -17,6 +17,7 @@
     "fastify-type-provider-zod": "^7.0.0",
     "file-type": "^22.2.0",
     "ipaddr.js": "^2.5.0",
+    "pino-pretty": "^13.2.0",
     "zod": "^4.6.7"
   }
 }

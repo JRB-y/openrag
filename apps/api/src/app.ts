@@ -15,7 +15,19 @@ import searchRoute from "./routes/search.js";
 // Split out from server.ts so integration tests can build the app and use
 // `.inject()` without actually binding a port.
 export async function buildApp(): Promise<FastifyInstance> {
-  const app = Fastify({ logger: true });
+  // Pino's default output is one JSON object per line - great for a log
+  // aggregator, unreadable in a terminal. pino-pretty reformats it for
+  // the dev console; not used in tests to avoid the extra worker thread.
+  const app = Fastify({
+    logger: process.env.VITEST
+      ? true
+      : {
+          transport: {
+            target: "pino-pretty",
+            options: { translateTime: "HH:MM:ss", ignore: "pid,hostname" },
+          },
+        },
+  });
 
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
