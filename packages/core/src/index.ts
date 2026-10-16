@@ -18,3 +18,5 @@ export { chunkMarkdown } from "./chunking/chunk-markdown.js";
 export type { Chunk } from "./chunking/types.js";
 export { embed } from "./embeddings/embed.js";
 export { chunkToEmbeddingText } from "./embeddings/contextualize.js";
+export { hybridSearch } from "./retrieval/hybrid-search.js";
+export type { RetrievedChunk } from "./retrieval/types.js";

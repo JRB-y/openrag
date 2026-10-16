@@ -12,10 +12,17 @@ function tokensOf(node: RootContent): number {
 
 // Carries the trailing ~overlapTokens worth of nodes from one sub-chunk
 // into the start of the next, so a split doesn't lose context mid-idea.
-// overlapTokens <= 0 means no overlap at all. Otherwise, always keeps
-// at least the last node, even if it alone exceeds the overlap budget.
-function takeOverlap(nodes: RootContent[], overlapTokens: number): RootContent[] {
+// overlapTokens <= 0 means no overlap at all. Otherwise, keeps at least
+// the last node, even if it alone exceeds the overlap budget - unless
+// that node is already as big as (or bigger than) a full target chunk,
+// in which case it's not "a little trailing context" anymore and
+// carrying it forward would just duplicate it wholesale into the next
+// chunk instead.
+function takeOverlap(nodes: RootContent[], overlapTokens: number, targetTokens: number): RootContent[] {
   if (overlapTokens <= 0) return [];
+
+  const lastNode = nodes[nodes.length - 1];
+  if (lastNode && tokensOf(lastNode) >= targetTokens) return [];
 
   const overlap: RootContent[] = [];
   let tokens = 0;
@@ -60,7 +67,7 @@ export function splitByTokenBudget(
 
     if (current.length > 0 && currentTokens + nodeTokens > targetTokens) {
       flush();
-      current = takeOverlap(current, overlapTokens);
+      current = takeOverlap(current, overlapTokens, targetTokens);
       currentTokens = countTokens(nodesToMarkdown(current));
     }
 

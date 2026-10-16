@@ -22,6 +22,22 @@ describe("chunkMarkdown", () => {
     }
   });
 
+  it("does not duplicate an oversized paragraph into the next chunk as overlap", () => {
+    // A single paragraph far bigger than the target size, followed by a
+    // normal one. The oversized paragraph can't be split (we only split
+    // between nodes), but it must not also get carried whole into the
+    // next chunk as "overlap" - that would just duplicate it.
+    const giant = "Mot ".repeat(2000).trim() + ".";
+    const markdown = `# Document\n\n${giant}\n\nUn petit paragraphe normal.\n`;
+
+    const chunks = chunkMarkdown(markdown, { chunkSizeTokens: 500, chunkOverlapTokens: 50 });
+
+    const giantChunks = chunks.filter((c) => c.content.includes("Mot Mot Mot"));
+    expect(giantChunks).toHaveLength(1);
+    expect(chunks.at(-1)!.content).not.toContain("Mot Mot Mot");
+    expect(chunks.at(-1)!.content).toContain("Un petit paragraphe normal.");
+  });
+
   it("never splits a table, even when it exceeds the target size", () => {
     const rows = Array.from({ length: 30 }, (_, i) => `| Ligne ${i} | Valeur ${i} |`);
     const table = ["| Col A | Col B |", "| --- | --- |", ...rows].join("\n");
