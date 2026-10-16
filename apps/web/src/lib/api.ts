@@ -1,6 +1,12 @@
-import type { DocumentDetailDTO, DocumentDTO, RetrievedChunk } from "@openrag/core";
+import type {
+  ConversationDetailDTO,
+  ConversationDTO,
+  DocumentDetailDTO,
+  DocumentDTO,
+  RetrievedChunk,
+} from "@openrag/core";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${API_URL}${path}`, init);
@@ -56,4 +62,16 @@ export function reindexDocument(id: string): Promise<DocumentDTO> {
 
 export function searchChunks(query: string): Promise<RetrievedChunk[]> {
   return request<RetrievedChunk[]>(`/search?q=${encodeURIComponent(query)}`);
+}
+
+export function listConversations(): Promise<ConversationDTO[]> {
+  return request<ConversationDTO[]>("/conversations");
+}
+
+export function getConversation(id: string): Promise<ConversationDetailDTO> {
+  return request<ConversationDetailDTO>(`/conversations/${id}`);
+}
+
+export function deleteConversation(id: string): Promise<void> {
+  return request<void>(`/conversations/${id}`, { method: "DELETE" });
 }

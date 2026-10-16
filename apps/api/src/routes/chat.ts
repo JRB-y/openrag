@@ -73,11 +73,16 @@ const chatRoutes: FastifyPluginAsyncZod = async (app) => {
       abortSignal: abortController.signal,
     });
 
+    // hijack() bypasses @fastify/cors's onSend hook entirely (it only
+    // runs for responses Fastify sends itself), so the Access-Control
+    // header has to be set by hand here too, or the browser's fetch
+    // rejects the cross-origin response outright.
     reply.hijack();
     reply.raw.writeHead(200, {
       "Content-Type": "text/event-stream",
       "Cache-Control": "no-cache",
       Connection: "keep-alive",
+      "Access-Control-Allow-Origin": request.headers.origin ?? "*",
     });
 
     function sendEvent(payload: unknown) {

@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 const TABS = [
   { href: "/", label: "Documents" },
   { href: "/search", label: "Recherche" },
+  { href: "/chat", label: "Chat" },
 ];
 
 export function AppHeader() {
