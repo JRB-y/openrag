@@ -3,6 +3,7 @@
 import type { DocumentDTO } from "@openrag/core";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { addUrlDocument, deleteDocument, listDocuments, reindexDocument, uploadDocuments } from "@/lib/api";
+import { AppHeader } from "@/components/app-header";
 import { ChunksDialog } from "@/components/chunks-dialog";
 import { DocumentsTable } from "@/components/documents-table";
 import { UploadZone } from "@/components/upload-zone";
@@ -93,7 +94,7 @@ export default function Home() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-3xl flex-col gap-6 px-6 py-10">
-      <h1 className="text-xl font-medium">OpenRag</h1>
+      <AppHeader />
 
       {error ? (
         <div className="flex items-center justify-between rounded-lg border border-red-800 bg-red-950 px-4 py-2 text-sm text-red-300">

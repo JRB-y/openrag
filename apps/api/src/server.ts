@@ -8,6 +8,7 @@ import { registerErrorHandler } from "./plugins/error-handler.js";
 import queuePlugin from "./plugins/queue.js";
 import documentsRoutes from "./routes/documents.js";
 import healthRoute from "./routes/health.js";
+import searchRoute from "./routes/search.js";
 
 const PORT = Number(process.env.PORT ?? 3001);
 
@@ -27,6 +28,7 @@ await app.register(dbPlugin);
 await app.register(queuePlugin);
 await app.register(healthRoute);
 await app.register(documentsRoutes);
+await app.register(searchRoute);
 
 await app.listen({ port: PORT, host: "0.0.0.0" });
 
