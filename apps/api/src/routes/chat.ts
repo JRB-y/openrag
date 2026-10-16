@@ -1,6 +1,7 @@
 import {
   type ChatMessage,
   conversations,
+  env,
   generateAnswer,
   hybridSearch,
   messages,
@@ -68,7 +69,12 @@ const chatRoutes: FastifyPluginAsyncZod = async (app) => {
 
     const standaloneQuestion = await rewriteQuestion(history, message);
     const candidates = await hybridSearch(standaloneQuestion);
-    const rerankedChunks = await rerank(standaloneQuestion, candidates);
+    // RERANK_ENABLED lets you bypass the cross-encoder entirely (its
+    // French/short-content calibration is unreliable, see DOCS.md §6.3) -
+    // fall back to the hybrid search's own order, capped the same way.
+    const rerankedChunks = env.RERANK_ENABLED
+      ? await rerank(standaloneQuestion, candidates)
+      : candidates.slice(0, env.RERANK_TOP_N);
     const result = generateAnswer(standaloneQuestion, rerankedChunks, {
       abortSignal: abortController.signal,
     });
