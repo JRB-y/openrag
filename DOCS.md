@@ -199,6 +199,10 @@ Les 30 meilleurs candidats passent dans un **cross-encoder** (`bge-reranker-base
 
 **Seuil de pertinence** : si aucun chunk ne dépasse un score minimum, l'assistant répond qu'il n'a pas trouvé l'information dans les documents, **sans appeler le LLM**. Ça évite les hallucinations et les coûts inutiles.
 
+**Limites connues** :
+- **Précision instable en `dtype: "q8"` (quantifié)** : testé et confirmé, le score d'un chunk peut varier selon les *autres* chunks présents dans le même batch (la calibration de la quantification int8 dépend de la composition du batch). `packages/core/src/reranking/model.ts` utilise donc `dtype: "fp32"`, batch-invariant, au prix d'une latence légèrement supérieure à la cible (~1.02s pour 30 candidats au lieu de <1s).
+- **Calibration faible sur des questions françaises reformulées** : `bge-reranker-base` est surtout entraîné sur de l'anglais/chinois. Une question française bien formée mais qui ne reprend pas les mots-clés exacts du chunk peut recevoir un score bas même quand le chunk est la bonne réponse (observé : un chunk clairement pertinent à 0.045, sous le seuil `RERANK_MIN_SCORE=0.3`). Accepté comme limite connue pour la phase 1 — un reranker multilingue plus récent (ex. `bge-reranker-v2-m3`) ou un abaissement du seuil pourraient être évalués en phase 2.
+
 ### 4. Génération avec citations
 
 Les chunks retenus sont injectés dans le prompt, numérotés :
@@ -402,6 +406,7 @@ RERANKER_MODEL=Xenova/bge-reranker-base
 RETRIEVAL_TOP_K=30           # candidats par méthode de recherche
 RERANK_TOP_N=5               # chunks envoyés au LLM
 RERANK_MIN_SCORE=0.3         # seuil sous lequel on répond "non trouvé"
+RERANK_ENABLED=true          # désactivable pour les évals de la phase 2
 
 # Ingestion
 CHUNK_SIZE_TOKENS=500

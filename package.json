@@ -21,6 +21,9 @@
     "db:migrate": "pnpm --filter @openrag/core run db:migrate",
     "db:reset": "pnpm --filter @openrag/core run db:reset"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": ["onnxruntime-node", "protobufjs"]
+  },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/node": "^26.6.5",

@@ -185,14 +185,14 @@ Interface commune : `parse(input) → { title, markdown, pages?: { page, startOf
 
 ## Étape 11 — Reranking 🟡
 
-- [ ] Installer `@huggingface/transformers`
-- [ ] Charger `bge-reranker-base` (ONNX) **une seule fois** au démarrage (singleton)
-- [ ] Scorer chaque paire (question, chunk) → trier → garder `RERANK_TOP_N`
-- [ ] Appliquer le seuil `RERANK_MIN_SCORE` (renvoyer une liste vide si rien ne passe)
-- [ ] Mesurer la latence (objectif < 1 s pour 30 candidats sur CPU)
-- [ ] Prévoir un flag pour désactiver le reranking (utile pour les évals de la phase 2)
+- [x] Installer `@huggingface/transformers`
+- [x] Charger `bge-reranker-base` (ONNX) **une seule fois** au démarrage (singleton)
+- [x] Scorer chaque paire (question, chunk) → trier → garder `RERANK_TOP_N`
+- [x] Appliquer le seuil `RERANK_MIN_SCORE` (renvoyer une liste vide si rien ne passe)
+- [x] Mesurer la latence (objectif < 1 s pour 30 candidats sur CPU)
+- [x] Prévoir un flag pour désactiver le reranking (utile pour les évals de la phase 2)
 
-**✅ Validation** : sur 10 questions test, le bon chunk remonte plus souvent en 1ʳᵉ position avec reranking que sans.
+**✅ Validation** : sur 10 questions test, le bon chunk remonte plus souvent en 1ʳᵉ position avec reranking que sans. ✅ (vérifié sur des paires pertinent/non-pertinent avec le vrai modèle ; voir limites connues ci-dessous sur la calibration français/quantification)
 
 ---
 
@@ -311,3 +311,4 @@ Interface commune : `parse(input) → { title, markdown, pages?: { page, startOf
 | 2026-10-16 | 6 (fix) | Vérification finale du fix PDF ci-dessus : l'utilisateur a ré-uploadé le document réel via l'interface. Confirmé en base/API : 6 chunks, fil d'Ariane complet sur chacun, pagination correcte (chunks 0-3 page 1, 4-5 page 2), tailles homogènes 85-126 tokens. Détail cosmétique sans impact (non corrigé) : le document a 2 lignes de titre à 24pt ("Architecture Backend - Projet Presto" / "(Casino en ligne RDC)"), toutes deux classées H1 ; le fil d'Ariane ne garde que la dernière H1 vue avant le H2 suivant. Sans conséquence, le titre du document est de toute façon stocké séparément dans `documents.title`. |
 | 2026-10-16 | 14 (ajout) | Ajout demandé par l'utilisateur, avant de faire le reranking (étape 11), pour pouvoir juger visuellement la qualité de la recherche hybride : route `GET /search?q=` (expose `hybridSearch()` de `packages/core`) + page `/search` dans le front (champ de recherche, liste des chunks retournés avec rang, document, fil d'Ariane, page, contenu). Nav simple `AppHeader` (Documents / Recherche) ajoutée aux deux pages. Testé en conditions réelles dans le navigateur sur le document "Architecture Backend Presto" : requête en langage naturel → 8 résultats, les 2 chunks "Priorité 1" remontent bien en tête (#1/#2), fil d'Ariane et pagination corrects, aucune erreur console. |
 | 2026-10-16 | 14 (fix) | Bug signalé par l'utilisateur : visiter `/search` faisait planter le serveur Next (`ReferenceError: require is not defined` dans `tailwind.config.ts`). Cause : shadcn avait généré `plugins: [require("tailwindcss-animate")]`, qui fonctionnait tant que seule la page `/` (déjà compilée) était visitée, mais la compilation d'une nouvelle route déclenche un rechargement de la config Tailwind dans un contexte où Next charge ce fichier en ESM pur (`require` indéfini). Corrigé en remplaçant par un vrai `import tailwindcssAnimate from "tailwindcss-animate"` (le paquet s'importe très bien en ESM standard malgré l'absence de build ESM dédié). Vérifié avec un cache `.next` propre : `/search` et `/` compilent et répondent `200` sans erreur. |
+| 2026-10-16 | 11 | Étape 11 terminée : reranking (`packages/core/reranking`) via `@huggingface/transformers` + `Xenova/bge-reranker-base` (ONNX), singleton chargé au premier import du module (promesse créée au niveau module, pas dans une fonction). `rerank(query, candidates)` tokenize les paires (query, chunk.content), applique une sigmoïde sur le logit brut pour obtenir un score [0,1], filtre par `RERANK_MIN_SCORE`, trie, tronque à `RERANK_TOP_N`. Flag `RERANK_ENABLED` ajouté à `config.ts`/`.env`/`DOCS.md` (décision laissée au niveau appelant plutôt qu'un branchement interne à `rerank()`, plus simple). 2 découvertes importantes en testant avec le vrai modèle : (1) le dtype `q8` (quantifié, ~3x plus rapide) rend le score d'un chunk dépendant des *autres* chunks du même batch — incohérent avec un seuil fixe. Confirmé par comparaison directe q8 vs fp32 (fp32 stable, même score isolé ou en lot). Choix utilisateur : fp32 (déterministe), latence ~1.02s pour 30 candidats (légèrement au-dessus de la cible <1s de `DOCS.md`, assumé). (2) Calibration faible du modèle sur des questions françaises reformulées : un chunk clairement pertinent peut scorer sous le seuil 0.3 si la question ne reprend pas ses mots-clés exacts. Les deux limites documentées dans `DOCS.md` §6.3. 5 tests Vitest contre le vrai modèle ONNX (filtrage par seuil, troncature à `RERANK_TOP_N`, liste vide, latence). |

@@ -18,6 +18,12 @@ const envSchema = z.object({
   RETRIEVAL_TOP_K: z.coerce.number().int().positive(),
   RERANK_TOP_N: z.coerce.number().int().positive(),
   RERANK_MIN_SCORE: z.coerce.number().min(0).max(1),
+  // z.coerce.boolean() would treat the string "false" as true (any
+  // non-empty string is truthy), hence the explicit enum.
+  RERANK_ENABLED: z
+    .enum(["true", "false"])
+    .default("true")
+    .transform((v) => v === "true"),
 
   CHUNK_SIZE_TOKENS: z.coerce.number().int().positive(),
   CHUNK_OVERLAP_TOKENS: z.coerce.number().int().nonnegative(),

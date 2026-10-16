@@ -20,3 +20,5 @@ export { embed } from "./embeddings/embed.js";
 export { chunkToEmbeddingText } from "./embeddings/contextualize.js";
 export { hybridSearch } from "./retrieval/hybrid-search.js";
 export type { RetrievedChunk } from "./retrieval/types.js";
+export { rerank } from "./reranking/rerank.js";
+export type { RerankedChunk } from "./reranking/rerank.js";
