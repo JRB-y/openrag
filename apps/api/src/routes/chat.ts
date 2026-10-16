@@ -104,14 +104,18 @@ const chatRoutes: FastifyPluginAsyncZod = async (app) => {
 
     const [finalText, citations] = await Promise.all([result.text, result.citations]);
     sendEvent({ type: "citations", value: citations });
-    reply.raw.end();
 
+    // Persist before ending the stream, so a client that has finished
+    // reading the response can already rely on the message being saved
+    // (e.g. a GET /conversations/:id right after the stream closes).
     await app.db.insert(messages).values({
       conversationId,
       role: "assistant",
       content: finalText,
       citations,
     });
+
+    reply.raw.end();
   });
 };
 
