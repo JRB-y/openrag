@@ -6,6 +6,8 @@ import { serializerCompiler, validatorCompiler } from "fastify-type-provider-zod
 import dbPlugin from "./plugins/db.js";
 import { registerErrorHandler } from "./plugins/error-handler.js";
 import queuePlugin from "./plugins/queue.js";
+import chatRoutes from "./routes/chat.js";
+import conversationsRoutes from "./routes/conversations.js";
 import documentsRoutes from "./routes/documents.js";
 import healthRoute from "./routes/health.js";
 import searchRoute from "./routes/search.js";
@@ -29,6 +31,8 @@ await app.register(queuePlugin);
 await app.register(healthRoute);
 await app.register(documentsRoutes);
 await app.register(searchRoute);
+await app.register(chatRoutes);
+await app.register(conversationsRoutes);
 
 await app.listen({ port: PORT, host: "0.0.0.0" });
 

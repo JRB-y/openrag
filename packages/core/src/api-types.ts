@@ -1,3 +1,5 @@
+import type { Citation } from "./generation/types.js";
+
 // Shared between apps/api (response shape) and apps/web (API client),
 // so the front doesn't redefine its own copy of what the API returns.
 export type DocumentStatus = "pending" | "processing" | "ready" | "failed";
@@ -29,4 +31,22 @@ export interface ChunkSummaryDTO {
 
 export interface DocumentDetailDTO extends DocumentDTO {
   chunks: ChunkSummaryDTO[];
+}
+
+export interface ConversationDTO {
+  id: string;
+  title: string | null;
+  createdAt: string;
+}
+
+export interface MessageDTO {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  citations: Citation[] | null;
+  createdAt: string;
+}
+
+export interface ConversationDetailDTO extends ConversationDTO {
+  messages: MessageDTO[];
 }

@@ -25,7 +25,11 @@ function fixedResult(message: string): GenerateAnswerResult {
 // chunks is expected to already be the output of hybrid search + reranking
 // (étapes 10-11) - this module only turns already-selected sources into
 // an answer, it doesn't search for them.
-export function generateAnswer(question: string, chunks: RetrievedChunk[]): GenerateAnswerResult {
+export function generateAnswer(
+  question: string,
+  chunks: RetrievedChunk[],
+  options?: { abortSignal?: AbortSignal },
+): GenerateAnswerResult {
   if (chunks.length === 0) {
     // No chunk cleared the reranking threshold: answer directly without
     // spending an LLM call, per DOCS.md §6.3 (avoids hallucination and cost).
@@ -36,6 +40,7 @@ export function generateAnswer(question: string, chunks: RetrievedChunk[]): Gene
     model: getLanguageModel(),
     system: SYSTEM_PROMPT,
     prompt: `${buildContext(chunks)}\n\nQuestion : ${question}`,
+    abortSignal: options?.abortSignal,
   });
 
   const text = Promise.resolve(result.text);
