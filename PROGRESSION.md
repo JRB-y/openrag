@@ -229,7 +229,7 @@ Interface commune : `parse(input) → { title, markdown, pages?: { page, startOf
 
 ---
 
-## Étape 14 — Front (apps/web) 🟢
+## Étape 14 — Front (apps/web) 🟡
 
 ### Setup
 - [x] Next.js (App Router) + Tailwind + shadcn/ui
